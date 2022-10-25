@@ -1,6 +1,8 @@
 package com.example.ntierApp.customer;
 
 import com.example.ntierApp.exception.NotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +11,7 @@ import java.util.List;
 @Service
 public class CustomerService {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(CustomerService.class);
     private CustomerRepository customerRepository;
 
     @Autowired
@@ -18,6 +21,7 @@ public class CustomerService {
     }
 
     List<Customer> getCustomers() {
+        LOGGER.info("getCustomers was called");
         return customerRepository.findAll();
     }
 
@@ -25,7 +29,11 @@ public class CustomerService {
         return customerRepository
                 .findById(id)
                 .orElseThrow(
-                        () -> new NotFoundException(
-                                "customer with id "+ id +" not found"));
+                        () ->{
+                            NotFoundException notFoundException = new NotFoundException(
+                                    "customer with id " + id + " not found");
+                            LOGGER.error("error in getting customer {}", id, notFoundException);
+                            return notFoundException;
+                        });
     }
 }
